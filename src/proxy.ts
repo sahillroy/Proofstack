@@ -10,5 +10,7 @@ export const config = {
     "/history/:path*",
     "/streaks/:path*",
     "/onboarding",
+    "/import/:path*",
+    "/import",
   ],
 }

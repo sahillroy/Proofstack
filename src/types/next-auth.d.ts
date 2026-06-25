@@ -7,6 +7,8 @@ declare module "next-auth" {
       username: string | null
       usernameSet: boolean
       streakCount: number
+      linkedinConnected: boolean
+      githubAccessToken: string | null
       githubUsername?: string
     } & DefaultSession["user"]
   }
@@ -15,5 +17,6 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     githubUsername?: string
+    githubAccessToken?: string
   }
 }
