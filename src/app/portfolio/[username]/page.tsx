@@ -3,12 +3,15 @@ import { notFound } from "next/navigation"
 import { ProfileHeader } from "@/components/portfolio/profile-header"
 import { ProjectCard } from "@/components/portfolio/project-card"
 import { StreakBadge } from "@/components/portfolio/streak-badge"
+import { PortfolioViewTracker } from "@/components/portfolio/portfolio-view-tracker"
 import type { PublicProfile, Submission } from "@/types"
 
 export default async function PortfolioPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { username } = await params
 
@@ -28,6 +31,9 @@ export default async function PortfolioPage({
 
   return (
     <main className="max-w-2xl mx-auto py-12 px-4">
+      {/* Track view in PostHog and Supabase */}
+      <PortfolioViewTracker username={username} />
+
       <ProfileHeader profile={profile as PublicProfile} />
       <div className="mt-3">
         <StreakBadge count={profile.streak_count ?? 0} />

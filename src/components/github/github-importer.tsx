@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, Loader2 } from "lucide-react"
+import { useAnalytics } from "@/hooks/use-analytics"
 import type { GitHubRepo } from "@/lib/github"
 
 export function GitHubImporter() {
@@ -12,6 +13,7 @@ export function GitHubImporter() {
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { trackGitHubImport } = useAnalytics()
 
   useEffect(() => {
     fetch("/api/github/repos")
@@ -47,6 +49,7 @@ export function GitHubImporter() {
     const data = await res.json()
 
     if (res.ok && data.submissionId) {
+      trackGitHubImport(repo.name)
       router.push(`/submit?imported=${data.submissionId}`)
     } else {
       setError(data.error ?? "Import failed")

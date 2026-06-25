@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { supabase } from "@/lib/supabase"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 const TONES = [
   { value: "professional", label: "Professional" },
@@ -21,6 +22,7 @@ export function SubmitForm({ userId, importedId }: { userId: string; importedId?
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState<string>("")
+  const { trackGeneration } = useAnalytics()
 
   const {
     register,
@@ -130,6 +132,7 @@ export function SubmitForm({ userId, importedId }: { userId: string; importedId?
       }
 
       const generated = await res.json()
+      trackGeneration("both", data.tone)
 
       // 3. Redirect to result page
       router.push(`/generate/${generated.id}`)

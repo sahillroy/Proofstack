@@ -3,16 +3,19 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Copy, Check } from "lucide-react"
+import { useAnalytics } from "@/hooks/use-analytics"
 import type { GenerationResult } from "@/lib/gemini"
 
 export function BlogPreview({ data }: { data: GenerationResult["blog"] }) {
   const [copied, setCopied] = useState(false)
+  const { trackCopy } = useAnalytics()
 
   const fullText = `# ${data.title}\n\n${data.intro}\n\n${data.body}\n\n${data.conclusion}`
 
   function copy() {
     navigator.clipboard.writeText(fullText)
     setCopied(true)
+    trackCopy("blog")
     setTimeout(() => setCopied(false), 2000)
   }
 

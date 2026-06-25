@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Copy, Check } from "lucide-react"
+import { useAnalytics } from "@/hooks/use-analytics"
 import type { GenerationResult } from "@/lib/gemini"
 
 function LinkedinIcon({ size = 14 }: { size?: number }) {
@@ -31,6 +32,7 @@ export function LinkedInPreview({
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(alreadyPublished)
   const [publishError, setPublishError] = useState<string | null>(null)
+  const { trackCopy, trackLinkedInPublish } = useAnalytics()
 
   const fullText = [
     data.hook,
@@ -47,6 +49,7 @@ export function LinkedInPreview({
   function copy() {
     navigator.clipboard.writeText(fullText)
     setCopied(true)
+    trackCopy("linkedin")
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -63,6 +66,7 @@ export function LinkedInPreview({
 
       if (res.ok) {
         setPublished(true)
+        trackLinkedInPublish()
       } else {
         const json = await res.json()
         setPublishError(json.error ?? "Publishing failed")

@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { ArrowLeft, ExternalLink } from "lucide-react"
-import type { GenerationResult } from "@/lib/gemini"
+import { PortfolioViewTracker } from "@/components/portfolio/portfolio-view-tracker"
+import type { GenerationResult } from "@/types"
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
@@ -16,8 +17,10 @@ function GithubIcon({ size = 14 }: { size?: number }) {
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string; projectId: string }>
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { username, projectId } = await params
 
@@ -53,6 +56,8 @@ export default async function ProjectDetailPage({
 
   return (
     <main className="max-w-3xl mx-auto py-12 px-4">
+      {/* Track view in PostHog and Supabase */}
+      <PortfolioViewTracker username={username} projectId={projectId} />
 
       {/* Back link */}
       <Link
