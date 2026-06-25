@@ -35,6 +35,7 @@ export const authOptions: NextAuthOptions = {
         const { error } = await supabaseAdmin.from("profiles").upsert(
           {
             id: user.id,
+            email: user.email,
             full_name: user.name ?? githubProfile?.name ?? null,
             avatar_url: user.image ?? null,
             github_username: githubProfile?.login ?? null,
