@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { PortfolioViewTracker } from "@/components/portfolio/portfolio-view-tracker"
-import type { GenerationResult } from "@/types"
+import type { GenerationResult } from "@/lib/gemini"
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
