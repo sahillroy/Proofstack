@@ -3,7 +3,12 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { SubmitForm } from "@/components/forms/submit-form"
 
-export default async function SubmitPage() {
+export default async function SubmitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ imported?: string }>
+}) {
+  const { imported } = await searchParams
   const session = await getServerSession(authOptions)
   if (!session?.user) redirect("/login")
 
@@ -15,7 +20,7 @@ export default async function SubmitPage() {
           Fill in the details and we&apos;ll generate your blog post and LinkedIn content.
         </p>
       </div>
-      <SubmitForm userId={session.user.id} />
+      <SubmitForm userId={session.user.id} importedId={imported} />
     </div>
   )
 }

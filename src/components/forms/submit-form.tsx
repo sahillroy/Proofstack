@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -17,7 +17,7 @@ const TONES = [
   { value: "technical", label: "Technical" },
 ] as const
 
-export function SubmitForm({ userId }: { userId: string }) {
+export function SubmitForm({ userId, importedId }: { userId: string; importedId?: string }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState<string>("")
@@ -36,37 +36,92 @@ export function SubmitForm({ userId }: { userId: string }) {
   const selectedType = watch("type")
   const selectedTone = watch("tone")
 
+  useEffect(() => {
+    if (!importedId) return
+
+    async function fetchImported() {
+      setStatus("Loading imported project data...")
+      const { data, error } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq("id", importedId)
+        .single()
+
+      if (error) {
+        setStatus(`Error loading repo data: ${error.message}`)
+        return
+      }
+
+      if (data) {
+        setValue("title", data.title || "")
+        setValue("type", (data.type as "project" | "course") || "project")
+        setValue("description", data.description || "")
+        setValue("techStack", data.tech_stack?.join(", ") || "")
+        setValue("skillsGained", data.skills_gained?.join(", ") || "")
+        setValue("githubUrl", data.github_url || "")
+        setValue("liveUrl", data.live_url || "")
+        setValue("tone", (data.tone as "professional" | "casual" | "storytelling" | "technical") || "professional")
+        setStatus("")
+      }
+    }
+
+    fetchImported()
+  }, [importedId, setValue])
+
   async function onSubmit(data: ProjectSubmissionInput) {
     setIsLoading(true)
 
     try {
-      // 1. Save submission to Supabase
-      setStatus("Saving your project...")
-      const { data: submission, error: subError } = await supabase
-        .from("submissions")
-        .insert({
-          user_id: userId,
-          title: data.title,
-          type: data.type,
-          description: data.description,
-          tech_stack: data.techStack.split(",").map((t) => t.trim()).filter(Boolean),
-          outcome: data.outcome,
-          skills_gained: data.skillsGained.split(",").map((s) => s.trim()).filter(Boolean),
-          github_url: data.githubUrl || null,
-          live_url: data.liveUrl || null,
-          tone: data.tone,
-        })
-        .select("id")
-        .single()
+      let submissionId = importedId
 
-      if (subError) throw new Error(subError.message)
+      // 1. Save or update submission in Supabase
+      if (importedId) {
+        setStatus("Updating your project...")
+        const { error: subError } = await supabase
+          .from("submissions")
+          .update({
+            title: data.title,
+            type: data.type,
+            description: data.description,
+            tech_stack: data.techStack.split(",").map((t) => t.trim()).filter(Boolean),
+            outcome: data.outcome,
+            skills_gained: data.skillsGained.split(",").map((s) => s.trim()).filter(Boolean),
+            github_url: data.githubUrl || null,
+            live_url: data.liveUrl || null,
+            tone: data.tone,
+          })
+          .eq("id", importedId)
+
+        if (subError) throw new Error(subError.message)
+      } else {
+        setStatus("Saving your project...")
+        const { data: submission, error: subError } = await supabase
+          .from("submissions")
+          .insert({
+            user_id: userId,
+            title: data.title,
+            type: data.type,
+            description: data.description,
+            tech_stack: data.techStack.split(",").map((t) => t.trim()).filter(Boolean),
+            outcome: data.outcome,
+            skills_gained: data.skillsGained.split(",").map((s) => s.trim()).filter(Boolean),
+            github_url: data.githubUrl || null,
+            live_url: data.liveUrl || null,
+            tone: data.tone,
+          })
+          .select("id")
+          .single()
+
+        if (subError) throw new Error(subError.message)
+        submissionId = submission.id
+      }
 
       // 2. Call generate API
       setStatus("Generating your content with AI...")
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId: submission.id, ...data }),
+        body: JSON.stringify({ submissionId, ...data }),
       })
 
       if (!res.ok) {
