@@ -37,7 +37,12 @@ export default async function GenerateResultPage({
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         <BlogPreview data={blog} />
-        <LinkedInPreview data={linkedin} />
+        <LinkedInPreview
+          data={linkedin}
+          postId={post.id}
+          linkedinConnected={session.user.linkedinConnected}
+          alreadyPublished={post.linkedin_published ?? false}
+        />
       </div>
     </div>
   )
