@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, History, Flame, Upload, Sparkles } from "lucide-react"
+import { LayoutDashboard, History, Flame, Upload, Sparkles, BarChart2, Users } from "lucide-react"
 
 function GithubIcon({ size = 16 }: { size?: number }) {
   return (
@@ -19,6 +19,8 @@ const links = [
   { href: "/generate",  label: "Generate",    icon: Sparkles },
   { href: "/history",   label: "History",     icon: History },
   { href: "/streaks",   label: "Streaks",     icon: Flame },
+  { href: "/analytics", label: "Analytics",   icon: BarChart2 },
+  { href: "/teams",     label: "Teams",       icon: Users },
 ]
 
 export function SidebarNav() {

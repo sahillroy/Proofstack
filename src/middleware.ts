@@ -1,6 +1,4 @@
-import withAuth from "next-auth/middleware"
-
-export const proxy = withAuth
+export { default } from "next-auth/middleware"
 
 export const config = {
   matcher: [
@@ -10,7 +8,8 @@ export const config = {
     "/history/:path*",
     "/streaks/:path*",
     "/onboarding",
-    "/import/:path*",
     "/import",
+    "/analytics",
+    "/teams/:path*",
   ],
 }
